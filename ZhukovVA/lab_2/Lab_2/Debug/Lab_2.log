@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Users\heiwa\source\repos\Lab_2\Lab_2\main.cpp(27,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Lab_2.vcxproj -> C:\Users\heiwa\source\repos\Lab_2\Debug\Lab_2.exe
