@@ -31,29 +31,29 @@ int main() {
             cin >> operation_sign;
 
 
-
+            std::cout << "Your answer is : ";
             switch (operation_sign)
             {
 
             case '+':
-                std::cout << "Your answer is : " << a + b << endl;
+                std::cout << a + b << endl;
                 right_input = true;
                 break;
 
             case '-':
-                std::cout << "Your answer is : " << a - b << endl;
+                std::cout  << a - b << endl;
                 right_input = true;
                 break;
 
             case '*':
-                std::cout << "Your answer is : " << a * b << endl;
+                std::cout << a * b << endl;
                 right_input = true;
                 break;
 
             case '/':
                 if ((b == 0)) { std::cout << "You can't divide by ZERO! try again\n"; }
                 else {
-                    std::cout << "Your answer is : " << a / b << endl;
+                    std::cout  << a / b << endl;
                     right_input = true;
                 }
                 break;
