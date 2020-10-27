@@ -20,7 +20,7 @@ int main()
 			nech++;
 		}
 	}
-	int i = 1, temp = 0, kolich = 0;
+	int i = 1, kolich = 0;
 
 	// Sort 
 	while (i != num) {
