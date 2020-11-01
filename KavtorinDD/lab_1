@@ -17,15 +17,15 @@ int main()
 
 		switch (sign)
 		{
-		case '+': cout << "Results:" << num1 + num2 << "If you finished, press ESC" << endl;
+		case '+': cout << "Results:" << num1 + num2 << "\nIf you finished, press ESC" << endl;
 			break;
-		case '-': cout << "Results:" << num1 - num2 << "If you finished, press ESC" << endl;
+		case '-': cout << "Results:" << num1 - num2 << "\nIf you finished, press ESC" << endl;
 			break;
-		case '*': cout << "Results:" << num1 * num2 << "If you finished, press ESC" << endl;
+		case '*': cout << "Results:" << num1 * num2 << "\nIf you finished, press ESC" << endl;
 			break;
 		case '/':
 			if (num2 != 0) {
-				cout << "Results:" << num1 / num2 << "If you finished, press ESC" << endl;
+				cout << "Results:" << num1 / num2 << "\nIf you finished, press ESC" << endl;
 			}
 			else {
 				cout << "You cannot divide by 0, Press any key to continue or press ESC to exit"<< endl;
