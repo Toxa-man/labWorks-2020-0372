@@ -35,7 +35,7 @@ int main() {
     }
 
     sort(arr);
-    
+
     int i = 0;
     while (i < size){
         std::cout << arr[i] << " ";
@@ -45,14 +45,20 @@ int main() {
     int odd[size];
     i = 0;
     int length = 0;
-    int max = arr[0], min = arr[0];
+    bool flag = true;
+    int max, min;
     float avg = 0;
 
     while (i < size){
         if (arr[i] % 2 != 0){
+            if (flag){
+                min = arr[i];
+                max = arr[i];
+                flag = false;
+            }
             length += 1;
             odd[i] = arr[i];
-            avg += arr[i];
+            avg += (float)arr[i];
             if (arr[i] < min){
                 min = arr[i];
             }
@@ -64,7 +70,6 @@ int main() {
     }
 
     avg = avg / (float)length;
-    i = 0;
     std::cout << "\n" << min << " " << max << " " << avg;
 
     return 0;
