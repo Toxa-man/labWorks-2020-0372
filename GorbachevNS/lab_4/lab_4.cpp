@@ -89,7 +89,7 @@ double my_sqrt(int number) {
 void my_N(int n)
 {
     bool pr = true;
-    if (n <= 1) { cout << "NE PROSTOY."; }
+    if (n <= 1) { cout << "not a Prime number"; }
     else {
         for (int i = 2; i <= my_sqrt(n); i++)
         {
