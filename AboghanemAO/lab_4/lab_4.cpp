@@ -38,22 +38,23 @@ double square_root(int num) {
 }
 
 
-const char* prime(int num) {
+bool prime(int num) {
 	if (num <= 1) return "Not Prime";
 
 	for (int i = 2; i < num; i++) {
-		if (num % i == 0) { return "Not Prime"; }
+		if (num % i == 0) { return false; }
 	}
-	return "Prime";
+	return true;
 }
 
 int main() {
 	int test1[5] = {1,0,25,9,4};
 	int test2[5] = {10,2,1,0,-2};
+	int test3[5] = { 2,4,3,9,7 };
 	double test1_poowr_test2[5] = {1,0,25,1,0.0625};
 	int factorial_test2[5] = {3.6288E+6,2,1,1,-1};
 	double Square_root_test1[5] = {1,0,5,3,2};
-	const char* prime_test1[5] = { "Not Prime","Not Prime","Not Prime","Not Prime","Not Prime"};
+	bool prime_test3[5] = { true,false,true, false,true };
 
 
 
@@ -88,8 +89,8 @@ int main() {
 	std::cout << "\n------Prime------" << std::endl;
 	for (int i = 0; i < 5;i++)
 	{
-		std::cout << test1[i] << " is " << prime_test1[i] << " ";
-		if (prime(test1[i]) == prime_test1[i] ) { std::cout << "True\n"; }
+		std::cout << test3[i] << " is " << prime_test3[i] << " ";
+		if (prime(test3[i]) == prime_test3[i] ){ std::cout << "True\n"; }
 		else { std::cout << "False\n"; }
 	}
 	
