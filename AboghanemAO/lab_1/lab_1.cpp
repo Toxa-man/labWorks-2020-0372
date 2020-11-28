@@ -6,8 +6,8 @@ using namespace std;
 
 int main() {
 
-    float a;
-    float b;
+    float first_number;
+    float second_number;
     char operation_sign;
     bool right_input = false;
     char ch;
@@ -20,12 +20,12 @@ int main() {
         {
             cout << "Enter two numbers and an operator sign in this format (number1 number2 operation_sign) : ";
 
-            cin >> a >> b;
+            cin >> first_number >> second_number;
             while (std::cin.fail()) {
                 std::cout << "Wrong input try again\n" << "Enter two numbers and an operator sign in this format (number1 number2 operation_sign)  ";
                 std::cin.clear();
                 std::cin.ignore(256, '\n');
-                std::cin >> a >> b;
+                std::cin >> first_number >> second_number;
             }
 
             cin >> operation_sign;
@@ -36,24 +36,24 @@ int main() {
             {
 
             case '+':
-                std::cout << a + b << endl;
+                std::cout << first_number + second_number << endl;
                 right_input = true;
                 break;
 
             case '-':
-                std::cout  << a - b << endl;
+                std::cout  << first_number - second_number << endl;
                 right_input = true;
                 break;
 
             case '*':
-                std::cout << a * b << endl;
+                std::cout << first_number * second_number << endl;
                 right_input = true;
                 break;
 
             case '/':
-                if ((b == 0)) { std::cout << "You can't divide by ZERO! try again\n"; }
+                if ((second_number == 0)) { std::cout << "You can't divide by ZERO! try again\n"; }
                 else {
-                    std::cout  << a / b << endl;
+                    std::cout  << first_number / second_number << endl;
                     right_input = true;
                 }
                 break;
