@@ -1,29 +1,27 @@
 #include <iostream>
-
 using namespace std;
 
 int calculator()
 {
-    cout << "введите 2 числа, а потом знак операции" << endl;
-    long double first, second;
-    char znack;
+    long double a, b;
+    char zn;
 
-    cin >> first >> second >> znack;
-    switch (znack) {
-    case '+': cout << first << '+' << second << '=' << first + second << endl;
+    cin >> a >> b >> zn;
+    switch (zn) {
+    case '+': cout << a << '+' << b << '=' << a + b << endl;
         break;
-    case '-': cout << first << '-' << second << '=' << first - second << endl;
+    case '-': cout << a << '-' << b << '=' << a - b << endl;
         break;
-    case '*': cout << first << '*' << second << '=' << first * second << endl;
+    case '*': cout << a << '*' << b << '=' << a * b << endl;
         break;
-    case '/': if (second == 0) {
+    case '/': if (b == 0) {
         cout << "MATH ERROR\n";
     }
             else {
-        cout << first << '/' << second << '=' << first / second << endl;
+        cout << a << '/' << b << '=' << a / b << endl;
     }
             break;
-    default: cout << "idk what is  " << znack << endl;
+    default: cout << "idk what is  " << zn << endl;
     }
     
     return 0;
@@ -31,7 +29,6 @@ int calculator()
 
 int main() 
 {
-    setlocale(LC_ALL, "Russian");
     cout << "Welcome to lab # 1\n";
     bool flag = 1;
     while (flag) {
@@ -42,3 +39,4 @@ int main()
     }
     return 0;
 }
+
