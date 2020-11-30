@@ -1,15 +1,11 @@
 #include <iostream>
 #include <string.h>
-
-
+const int arr_size=100;
 class sentence_with_word {
 
 
 public:
-    int sentence_size;
-    char sentence[100];
-    int start_index = 0;
-    int end_index = 0;
+
 
     void sortSentence(){
         while(end_index<=sentence_size){ // because size and last index are different things
@@ -24,14 +20,23 @@ public:
         newEndIndex();
     }
 
-
+    void print(){
+        std::cout<<sentence;
+    }
 
 private:
+
+    int sentence_size;
+    char sentence[arr_size];
+    int start_index = 0;
+    int end_index = 0;
+
+
     void sortWord(){
         for(int i=0; i < end_index-start_index; i++){
             for(int j=start_index; j < end_index;j++){
                 if(sentence[j]>sentence[j+1]){
-                    mySwitch(j);
+                    mySwap(j);
                 }
             }
         }
@@ -57,7 +62,7 @@ private:
         }
         return i-1;
     }
-    void mySwitch(int j){
+    void mySwap(int j){
         char im_helpful=sentence[j];
         sentence[j] = sentence[j+1];
         sentence[j+1] = im_helpful;
@@ -67,10 +72,11 @@ private:
 
 
 int main() {
-    char input_sentence[100];
-    std::cin.get(input_sentence, 100);
+
+    char input_sentence[arr_size];
+    std::cin.get(input_sentence, arr_size);
     sentence_with_word sentence(input_sentence);
     sentence.sortSentence();
-    std::cout<<sentence.sentence;
+    sentence.print();
     return 0;
 }
