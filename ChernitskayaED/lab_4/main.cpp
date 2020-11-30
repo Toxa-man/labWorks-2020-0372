@@ -51,25 +51,15 @@ double sqrt(int a)
     cout << b; 
 }
 
-bool simple(int a)
+bool simple(int a) 
 {
-    bool flag = true;
-    int t = 0;
-    for (int i = 2; i <= sqrt(a); i++)
+    for (int i = 2; i <= sqrt(a); i++) 
     {
-        if (a % i == 0)
-        {
-            flag = false;
+        if (a % i == 0) {
+            return false;
         }
     }
-    if (flag) 
-    {
-        cout << a << " является простым числом " << endl;
-    }
-    else {
-        cout << a <<" не является простым числом " << endl;
-    }
-    return 0;
+    return true;
 }
 
 
