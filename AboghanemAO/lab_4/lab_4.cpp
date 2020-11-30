@@ -39,7 +39,7 @@ double square_root(int num) {
 
 
 bool prime(int num) {
-	if (num <= 1) return "Not Prime";
+	if (num <= 1) return false;
 
 	for (int i = 2; i < num; i++) {
 		if (num % i == 0) { return false; }
