@@ -49,6 +49,7 @@ int main() {
     int max, min;
     float avg = 0;
 
+    int odd_index = 0;
     while (i < size){
         if (arr[i] % 2 != 0){
             if (flag){
@@ -57,7 +58,7 @@ int main() {
                 flag = false;
             }
             length += 1;
-            odd[i] = arr[i];
+            odd[odd_index] = arr[i];
             avg += (float)arr[i];
             if (arr[i] < min){
                 min = arr[i];
@@ -65,6 +66,7 @@ int main() {
             if (arr[i] > max){
                 max = arr[i];
             }
+            odd_index++;
         }
         i++;
     }
