@@ -24,20 +24,21 @@ int main()
 {
     const int size(9);
     int arr[size];
-    int i,c(0);
+    int i, c(0);
     srand(time(0));
-    for ( i = 0; i < size; i++) {
+    for (i = 0; i < size; i++) {
         arr[i] = -50 + rand() % 100 + 1;
     }
-    for ( i = 0; i < size; i++) {
+    cout << "Original array: " ;
+    for (i = 0; i < size; i++) {
         cout << arr[i] << " ";
     }
-    cout << endl;
+    cout << endl <<"After sorting: " ;
     Bubble(arr, size);
     for (i = 0; i < size; i++) {
         cout << arr[i] << " ";
     }
-    cout << endl;
+    cout << endl <<"Second array:" ;
     int arr2[size];
     for (i = 0; i < size; i++) {
         if (arr[i] % 2 != 0) {
@@ -46,14 +47,15 @@ int main()
         else {
             arr2[i] = 0;
         }
-  }
-    for (i = 0; i < size; i++) {
-        if(arr2[i]!=0)
-        cout << arr2[i] << " ";
     }
-    cout << endl;
-    cout << arr[0]<< endl;
-    cout << arr[size-1]<< endl;
+    for (i = 0; i < size; i++) {
+        if (arr2[i] != 0)
+            cout << arr2[i] << " ";
+    }
+   
+    cout << endl << "Minimal element: " << arr[0] << endl;
+    cout << "Maximal element: " << arr[size - 1] << endl;
+    cout << "Average: ";
     for (i = 0; i < size; i++) {
         c += arr[i];
     }
