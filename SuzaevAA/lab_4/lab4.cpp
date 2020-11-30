@@ -7,7 +7,7 @@ float func_degree()
     std::cout << "Enter it number and degree :" << std::endl;
     std::cin >> num1 >> degree;
     num2 = num1;
-    for (int i = 0; i < degree-1; i++)
+    for (int i = 0; i < degree - 1; i++)
         num1 = num1 * num2;
     std::cout << num1;
     return num1;
@@ -15,7 +15,7 @@ float func_degree()
 
 int func_factorial()
 {
-    int Num1,Num2 = 1;
+    int Num1, Num2 = 1;
     std::cout << "Write N and I will find factorial:";
     std::cin >> Num1;
     while (Num1 > 0)
@@ -46,10 +46,10 @@ double func_root()
     return Num2;
 }
 
-int func_simplicity()
+bool func_simplicity()
 {
     std::cout << "Write N:";
-    int Num,h=0;
+    int Num, h = 0;
     std::cin >> Num;
     if (Num <= 0)
         return -1;
@@ -59,13 +59,13 @@ int func_simplicity()
             h++;
 
     }
-    if (h == 2 && Num!=1)
-        std::cout << "Number simplicity";
-    if (h!=2 && Num!=1)
-        std::cout << "no simplicity";
-    if (Num==1)
-       std::cout << "Number simplicity";
-    return 0;
+    if (h == 2 && Num != 1)
+        return true;
+    if (h != 2 && Num != 1)
+        return false;
+    if (Num == 1)
+        return true;
+    
 }
 
 int main()
@@ -90,11 +90,11 @@ int main()
         func_root();
         break;
     case '4':
-        func_simplicity();
+        std::cout <<func_simplicity();
         break;
     default:
         break;
 
     }
-    
+
 }
