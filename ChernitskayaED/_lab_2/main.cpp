@@ -21,20 +21,24 @@ int main()
 	int t = 0;
 	bool end = false;
 	cout << endl << "Отсортированный массив: ";
-	do{
+
+	while (end != true) 
+	{
 		end = true;
-		for (int i = 0; i < size-1; i++)
+		int i = 0;
+		while (i < size - 1) 
 		{
-			if (arr[i] > arr[i + 1])
+			while (arr[i] > arr[i + 1])
 			{
 				t = arr[i];
 				arr[i] = arr[i + 1];
 				arr[i + 1] = t;
 				end = false;
 			}
+			i++;
 		}
-	
-	}while (end != true);
+	}
+
 	
 	for (int i = 0; i < size; i++)
 	{
@@ -64,9 +68,9 @@ int main()
 			
 		}
 	}
+	
 	int maxi = arr2[nechet-1];
 	int mini = arr2[0];
-	
 	double average = (double)suma / nechet;
 
 	cout << endl << "Нечетные значения: ";
@@ -74,6 +78,7 @@ int main()
 	{
 		cout << arr2[j] << " ";
 	}
+	delete arr2;
 	
 	cout << endl << "Среднее значение: ~ " << average;
 	cout << endl << "Максимальное значение: " << maxi;
@@ -82,3 +87,4 @@ int main()
 	system("pause");
 	return 0; 
 }
+
