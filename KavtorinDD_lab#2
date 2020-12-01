@@ -1,0 +1,56 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+int main() {
+	srand(time(0));
+	const int size = 11
+		;
+	int arr[size];
+	int nechet[size];
+	cout << "Massiv:" << "\t";
+	for (int i = 0; i < size; i++) {
+		arr[i] = rand();
+		cout << arr[i] << "\t";
+	}
+	int i = 0, j;
+	while (i < size) {
+		 j = 0;
+		while (j < size) {
+			if (arr[i] < arr[j]) {
+				swap(arr[i], arr[j]);
+			}
+			j++;
+		}
+		i++;
+	}
+	cout << endl;
+	cout << "After sort:"; 
+	for (int i = 0; i < size; i++) {
+		cout << arr[i] << "\t";
+	}
+	int kolvonech = 0;
+	for (int i = 0; i < size; i++) {
+		if (arr[i] % 2 == 1) {
+			nechet[kolvonech] = arr[i];
+			kolvonech++;
+		}
+	}
+	int min = 2147483647;
+	int max = -2147483647 - 1;
+	double summ = 0;
+	int kolvo = 0;
+	for (int i = 0; i < kolvonech; i++) {
+		if (nechet[i] <= min) {
+			min = nechet[i];
+		}
+		if (nechet[i] >= max) {
+			max = nechet[i];
+		}
+		summ = summ + nechet[i];
+		kolvo++;
+	}
+	cout << endl;
+	cout << "Min nechet element:" << min << endl;
+	cout << "Max nechet element:" << max <<endl;
+	cout << "Medium nechet elementov:" << summ / kolvo;
+}
