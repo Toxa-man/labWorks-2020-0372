@@ -47,19 +47,14 @@ double sqrt(int z) {
     return b;
 }
 
-void simple(int b) {
+bool simple(int b) {
     int x = 2, y=0;
     for (x; x < b; x++) {
         if (b % x == 0) {
-            y = 1;
+            return 1;
         }
     }
-    if (y == 0) {
-        std::cout << "Число " << b << " является простым" << std::endl;
-    }
-    else {
-        std::cout << "Число " << b << " не является простым" << std::endl;
-    }
+    return 0;
 }
 
 int main()
@@ -69,7 +64,12 @@ int main()
     std::cout << a << " в степени " << b << " = " << power(a, b) << std::endl;
     std::cout << b << "! " << " = " << fact(b) << std::endl;
     std::cout << "Корень из " << b << " = " << sqrt(b) << std::endl;
-    simple(b);
+    if (simple(b) == 0) {
+        std::cout << "Число является простым." << std::endl;
+    }
+    else {
+        std::cout << "Число не является простым" << std::endl;
+    }
     system("PAUSE");
     return 0;
 }
