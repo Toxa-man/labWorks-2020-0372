@@ -91,13 +91,12 @@ int main() {
                 break;
 
         }
-        for (int i = 0; i < rows1; i++){
-            delete [] matrix1[i];
-        }
+        
+        for (int i = 0; i < rows1; i++) delete [] matrix1[i];
+        delete [] matrix1;
 
-        for (int i = 0; i < rows2; i++){
-            delete [] matrix2[i];
-        }
+        for (int i = 0; i < rows2; i++) delete [] matrix2[i];
+        delete [] matrix2;
 
         for (int i = 0; i < rows1; i++){
             for (int j = 0; j < columns2; j++) std:: cout << result[i][j] << " ";
@@ -105,6 +104,7 @@ int main() {
         }
 
         for (int i = 0; i < rows1; i++) delete [] result[i];
+        delete [] result;
 
         std::cout << "Press ESC to exit program\n";
         exit_char = _getch();
