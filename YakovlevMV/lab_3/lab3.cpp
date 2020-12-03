@@ -8,7 +8,7 @@ int main() {
 	char sent[100];
 	cout << "Enter your sentence (max 100 symbols): " << endl;
 	cin.getline(sent, 100);
-	int last_index = 0, word_num = 1, letter_count = 0, word_size = 0, min_word = 0, word_ind = 0;
+	int last_index = 0, word_num = 1, letter_count = 0, word_ind = 0;
 	for (int i = 0; i < (int)strlen(sent); i++)  if (sent[i] == ' ') word_num++;
 	char** words;
 	words = new char* [word_num];
