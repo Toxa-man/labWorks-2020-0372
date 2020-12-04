@@ -1,0 +1,96 @@
+#include <iostream>
+#include <conio.h>
+using namespace std;
+
+void summ(int n, int m) {
+	const int p= 20;
+	int M1[p][p] = {}, M2[p][p] = {}, M_act[p][p] = {};
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+
+			M_act[i][j] = M1[i][j] + M2[i][j];
+
+		}
+	}
+}
+
+void min(int n, int m) {
+	 const int p = 20;
+	int M1[p][p] = {}, M2[p][p] = {}, M_act[p][p] = {};
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+
+			M_act[i][j] = M1[i][j] - M2[i][j];
+
+		}
+	}
+}
+	void umn(int n, int m) {
+		const int p = 20;
+		int M1[p][p] = {}, M2[p][p] = {}, M_act[p][p] = {};
+		if (n = m) {
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < m; j++) {
+
+					M_act[i][j] = M1[i][j] * M2[i][j];
+
+				}
+			}
+		}
+		else {
+			cout << "Matrices of different sizes!";
+		}
+	}
+char ch = _getch();
+int main() {
+	do {
+		cout << "Enter the number of rows and columns in matrices: " << endl;
+		const int p = 20;
+		int n, m;
+		cin >> n >> m;
+
+		int M1[p][p] = {}, M2[p][p] = {}, M_act[p][p] = {};
+		cout << "Input matrix 1: " << endl;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				cin >> M1[i][j];
+			}
+		}
+		cout << "Input matrix 2: " << endl;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				cin >> M2[i][j];
+			}
+		}
+
+
+		cout << "Enter a sign describing the action on matrices ( +, -, *) ";
+		int sign;
+		cin >> sign;
+
+		switch (sign) {
+		case '+':
+			summ(n, m);
+			break;
+
+		case '-':
+			min(n, m);
+
+			break;
+
+		case '*':
+			umn(n, m);
+			break;
+
+		}
+
+		cout << "Matrix = ";
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+
+				cout << M_act[i][j] << " ";
+			}
+		}
+	} while (ch != 32);
+	return 0;
+}
