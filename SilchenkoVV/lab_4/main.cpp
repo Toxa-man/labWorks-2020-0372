@@ -1,5 +1,5 @@
+#include <cstdio>
 #include <iostream>
-#include <ctime>
 
 
 // count factorial function
@@ -22,34 +22,16 @@ long int exp(int n, int degree){
 
 // counting square root with integer result or float result depending on input number
 double squareRoot(long n){
-    int result;
-    double approximately_res;
-    int i = 1;
-    double k = 0.1;  // reducing coefficient to get an approximately result
-    double j;
-    bool f = true;  // flag
+    double i = 1;
+    double k = 10000;
     while (true){
-        if (i * i == n){  // if square root of n is integer
-            result = i;
-            return (double)result;
-        } else {
-            if (i * i > n){  // if square root of n is float
-                if (f){  // first assign j with flag
-                    j = (double)i;  // assign last got "i" to j
-                    f = false;
-                }
-                if (j * j > (double )n) j -= k;
-                else if (j * j < (double )n) j += k;
-                if ((double )n - j * j < 0.01 && j * j <= (double)n) {  // 0.01 is measurement error
-                    approximately_res = j;
-                    return approximately_res;
-                } else if (j * j < (double )n) {
-                    j += k;
-                    k /= 10;
-                }
-            } else {
-                i++;
+        if (i * i < n) i += k;
+        else {
+            if ((double)n - i * i < 0.000001 && i * i < (double)n + 0.000001) {
+                return i;
             }
+            i -= k;
+            k /= 10;
         }
     }
 }
@@ -75,8 +57,9 @@ int main(){
 
     std::cout << fact(6) << std::endl;
     std::cout << exp(6, 4) << std::endl;
-    std::cout << squareRoot(13370000) << std::endl;
-    isNumberSimple(123121000);
+    printf("%.12f", squareRoot(1337000000));
+    std::cout << "\n";
+    isNumberSimple(123121003);
 
     return 0;
 }
