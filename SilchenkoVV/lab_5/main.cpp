@@ -62,7 +62,7 @@ int main() {
         std::cout << "3) Matrix difference.\n";
         std::cout << ">";
 
-        while (!(std::cin >> action) or not (0 < action and action < 3)){
+        while (!(std::cin >> action) or not (0 < action and action <= 3)){
             std::cout << "Wrong input\n" << std::endl;
             std::cout << "Select desired action:\n";
             std::cout << "1) Matrix addition.\n";
@@ -91,7 +91,7 @@ int main() {
                 break;
 
         }
-        
+
         for (int i = 0; i < rows1; i++) delete [] matrix1[i];
         delete [] matrix1;
 
