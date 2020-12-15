@@ -1,0 +1,126 @@
+#include <iostream>
+#include <conio.h>
+using namespace std;
+
+void summ(int** M1, int** M2, int** M_act, int n1, int m1) {
+
+	M_act = new int* [n1];
+	for (int i = 0; i < n1; i++) {
+		M_act[i] = new int[m1];
+		for (int j = 0; j < m1; j++) {
+			M_act[i][j] = 0;
+			M_act[i][j] = M1[i][j] + M2[i][j];
+			cout << M_act[i][j] << ' ';
+		}
+	}
+
+}
+
+void min(int** M1, int** M2, int** M_act, int n1, int m1) {
+
+	M_act = new int* [n1];
+	for (int i = 0; i < n1; i++) {
+		M_act[i] = new int[m1];
+		for (int j = 0; j < m1; j++) {
+			M_act[i][j] = 0;
+			M_act[i][j] = M1[i][j] - M2[i][j];
+			cout << M_act[i][j] << ' ';
+		}
+	}
+
+}
+
+void umn(int** M1, int** M2, int** M_act, int m1, int n1, int m2) {
+
+	M_act = new int* [n1];
+	for (int i = 0; i < n1; i++) {
+		M_act[i] = new int[m2];
+		for (int j = 0; j < m2; j++) {
+			M_act[i][j] = 0;
+			for (int k = 0; k < m1; k++) {
+				M_act[i][j] += M1[i][k] * M2[k][j];
+				cout << M_act[i][j] << ' ';
+			}
+		}
+	}
+
+}
+
+
+char ch = _getch();
+int main() {
+	
+		int s = 0;
+		const int p = 20;
+		int n1, m1, n2, m2;
+		int** M1, ** M2, ** M_act = NULL;
+      do {
+		cout << "Enter the number of rows and columns in the first matrix: " << endl;
+		cin >> n1 >> m1;
+
+		cout << "Input matrix 1: " << endl;
+		M1 = new int* [n1];
+		for (int i = 0; i < n1; i++) {
+			M1[i] = new int[m1];
+			for (int j = 0; j < m1; j++) {
+				cin >> M1[i][j];
+			}
+		}
+		cout << "Enter the number of rows and columns in the second matrix: " << endl;
+		cin >> n2 >> m2;
+
+
+		cout << "Input matrix 2: " << endl;
+		M2 = new int* [n2];
+		for (int i = 0; i < n2; i++) {
+			M2[i] = new int[m2];
+			for (int j = 0; j < m2; j++) {
+				cin >> M2[i][j];
+			}
+		}
+
+
+		cout << "Enter a sign describing the action on matrices ( +, -, *) ";
+		char sign;
+		cin >> sign;
+
+		switch (sign) {
+		case '+':
+			if ((n1 == n2) && (m1 == m2)) {
+				cout << "Matrix = ";
+				summ(M1, M2, M_act, n1, m1);
+			}
+			else {
+				cout << "Matrices of different sizes!";
+
+			}
+
+			break;
+
+		case '-':
+			if ((n1 == n2) && (m1 == m2)) {
+				cout << "Matrix = ";
+				min(M1, M2, M_act, n1, m1);
+			}
+			else {
+				cout << "Matrices of different sizes!";
+
+			}
+			break;
+
+		case '*':
+			if (m1 != n2) {
+				cout << "Multiplication is impossible!!";
+				return 0;
+			}
+			else {
+				cout << "Matrix = ";
+				umn(M1, M2, M_act, n1, m2, n2);
+			}
+			break;
+		}
+		cout << endl;
+	} while (ch != 32);
+	return 0;
+	
+}
