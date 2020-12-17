@@ -70,7 +70,6 @@ int main()
     int temp_count;//Кол-во студентов, которых хотят добавить в даный момент БД
     int stud_count;//Кол-во студентов
     string data_path = "data_base.txt";//Файл для записи БД
-    string count_path = "count.txt";//Файл для записи кол-ва студентов
 
     f_read.open(data_path);{//Распаковываем БД из файла в массив
 
