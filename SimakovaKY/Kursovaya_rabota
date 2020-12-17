@@ -1,0 +1,361 @@
+/* Выполнили: Любимова Яна
+              Цывунина Евгения
+              Симакова Кристина */
+              
+#include <iostream>
+#include <conio.h>
+#include <complex>
+using namespace std;
+
+
+int main() {
+
+	char ch = _getch();
+	int x0, y0, z0, x, y, z, x1, x2, y1, y2, z1, z2, n, n1, m1, n2, m2, length, t = 0;
+	int** M1, ** M2, ** M_act = NULL;
+	double modul = 0;
+	double arg1 = 0;
+	float real1, mnim1, real2, mnim2, stepen;
+	setlocale(LC_ALL, "Russian");
+
+
+	while (ch != 27) {
+		cout << "Для выхода из программы нажмите клавишу 'Escape'. " << endl;
+		cout << "Вывести калькулятор для (введите соответствующую цифру): " << endl << "1 - векторов" << endl << "2 - матриц" << endl << "3 - комплексных чисел" << endl;
+		char sign;
+		cin >> sign;
+
+		switch (sign) {
+
+		case '1':
+			cout << "Выберите действие с векторами (введите цифру): " << endl << "1 - Нахождение координат вектора" << endl << "2 - Нахождение длины вектора" << endl << "3 - Сложение векторов" << endl << "4 - Вычитание векторов" << endl << "5 - Умножение вектора на число" << endl;
+			char sign;
+			cin >> sign;
+
+			if ((sign == '1') || (sign == '2')) {
+				cout << "Введите координаты начала вектора: " << endl;
+				cin >> x0 >> y0 >> z0;
+				cout << "Введите координаты конца вектора: " << endl;
+				cin >> x >> y >> z;
+
+				switch (sign) {
+
+				case '1':
+					cout << "Координаты вектора равны:" << ' ' << x - x0 << ' ' << y - y0 << ' ' << z - z0 << endl;
+					break;
+
+				case '2':
+					int length;
+					length = sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0) + (z - z0) * (z - z0));
+					cout << "Длина вектора равна:" << ' ' << length;;
+					break;
+				}
+			}
+
+
+			if ((sign == '3') || (sign == '4')) {
+				cout << "Введите координаты первого вектора: " << endl;
+				cin >> x1 >> y1 >> z1;
+				cout << "Введите координаты второго вектора: " << endl;
+				cin >> x2 >> y2 >> z2;
+
+				switch (sign) {
+
+				case '3':
+					cout << "Вектор суммы (" << x1 << ' ' << y1 << ' ' << z1 << ") и (" << x2 << ' ' << y2 << ' ' << z2 << ") равен (" << x1 + x2 << ' ' << y1 + y2 << ' ' << z1 + z2 << ")" << endl;
+					break;
+
+				case '4':
+					x2 *= -1;
+					y2 *= -1;
+					z2 *= -1;
+					cout << "Вектор разности (" << x1 << ' ' << y1 << ' ' << z1 << ") и (" << x2 << ' ' << y2 << ' ' << z2 << ") равен (" << x1 + x2 << ' ' << y1 + y2 << ' ' << z1 + z2 << ")" << endl;
+					break;
+				}
+			}
+
+			switch (sign) {
+			case '5':
+				cout << "Введите координаты вектора: " << endl;
+				cin >> x0 >> y0 >> z0;
+				cout << "Введите число, на которое хотите умножить вектор: " << endl;
+				cin >> n;
+				cout << "Вектор (" << x0 << ' ' << y0 << ' ' << z0 << "), умноженный на " << n << " равен вектору (" << x0 * n << ' ' << y0 * n << ' ' << z0 * n << ")" << endl;
+				break;
+				cout << endl;
+			}
+			break;
+
+		case '2':
+			cout << "Выберите действие (введите цифру): " << endl << "1 - сложение матриц" << endl << "2 - вычитание матриц" << endl << "3 - перемножение матриц" << endl << "4 - транспонирование матрицы" << endl << "5 - умножение матрицы на число" << endl;
+			char sign1;
+			cin >> sign1;
+
+			if ((sign1 == '4') || (sign1 == '5')) {
+				cout << "Введите число строк и столбцов матрицы: " << endl;
+				cin >> n1 >> m1;
+				cout << "Введите матрицу:" << endl;
+				M1 = new int* [n1];
+				for (int i = 0; i < n1; i++) {
+					M1[i] = new int[m1];
+					for (int j = 0; j < m1; j++) {
+						cin >> M1[i][j];
+					}
+				}
+				switch (sign1) {
+
+				case '4':
+					cout << "Исходная матрица = ";
+					for (int i = 0; i < n1; ++i) {
+						for (int j = i; j < m1; ++j)
+						{
+							t = M1[i][j];
+							M1[i][j] = M1[j][i];
+							M1[j][i] = t;
+						}
+					}
+					for (int i = 0; i < m1; ++i) {
+						for (int j = 0; j < n1; ++j)
+						{
+							cout << M1[i][j] << ' ';
+						}
+					}
+					break;
+
+				case '5':
+					cout << "Введите число, на которое будет умножена матрица:  ";
+					int chislo;
+					cin >> chislo;
+					cout << "Исходная матрица = ";
+					for (int i = 0; i < n1; i++) {
+						for (int j = 0; j < m1; j++) {
+
+							M1[i][j] = M1[i][j] * chislo;
+							cout << M1[i][j] << ' ';
+						}
+					}
+					break;
+				}
+			}
+			else {
+
+				cout << "Введите число строк и столбцов первой матрицы: " << endl;
+				cin >> n1 >> m1;
+
+				cout << "Введите матрицу:" << endl;
+				M1 = new int* [n1];
+				for (int i = 0; i < n1; i++) {
+					M1[i] = new int[m1];
+					for (int j = 0; j < m1; j++) {
+						cin >> M1[i][j];
+					}
+				}
+				cout << "Введите число строк и столбцов второй матрицы: " << endl;
+				cin >> n2 >> m2;
+
+				cout << "Введите матрицу:" << endl;
+				M2 = new int* [n2];
+				for (int i = 0; i < n2; i++) {
+					M2[i] = new int[m2];
+					for (int j = 0; j < m2; j++) {
+						cin >> M2[i][j];
+					}
+				}
+
+
+				switch (sign1) {
+				case '1':
+					if ((n1 == n2) && (m1 == m2)) {
+						cout << "Исходная матрица = ";
+						M_act = new int* [n1];
+						for (int i = 0; i < n1; i++) {
+							M_act[i] = new int[m1];
+							for (int j = 0; j < m1; j++) {
+								M_act[i][j] = 0;
+								M_act[i][j] = M1[i][j] + M2[i][j];
+								cout << M_act[i][j] << ' ';
+							}
+						}
+					}
+					else {
+						cout << "Матрицы разных размеров!";
+
+					}
+
+					break;
+
+				case '2':
+					if ((n1 == n2) && (m1 == m2)) {
+
+						cout << "Исходная матрица = ";
+						M_act = new int* [n1];
+						for (int i = 0; i < n1; i++) {
+							M_act[i] = new int[m1];
+							for (int j = 0; j < m1; j++) {
+								M_act[i][j] = 0;
+								M_act[i][j] = M1[i][j] - M2[i][j];
+								cout << M_act[i][j] << ' ';
+							}
+						}
+					}
+					else {
+						cout << "Матрицы разных размеров!";
+
+					}
+					break;
+
+				case '3':
+					if (m1 != n2) {
+						cout << "Умножение невозможно! Проверьте размер матриц.";
+					}
+					else {
+
+						cout << "Исходная матрица = ";
+						M_act = new int* [n1];
+						for (int i = 0; i < n1; i++) {
+							M_act[i] = new int[m2];
+							for (int j = 0; j < m2; j++) {
+								M_act[i][j] = 0;
+								for (int k = 0; k < m1; k++) {
+									M_act[i][j] = M_act[i][j] + (M1[i][k] * M2[k][j]);
+
+								}
+							}
+						}
+						for (int i = 0; i < n1; i++) {
+							for (int j = 0; j < m2; j++)
+								cout << M_act[i][j] << " ";
+						}
+					}
+					break;
+				}
+
+				cout << endl;
+			}
+			break;
+
+		case '3':
+			cout << "Выберите действие с комплексными числами (введите цифру): " << endl << "1 - сложение" << endl << "2 - вычитание" << endl << "3 - умножение" << endl << "4 - деление" << endl << "5 - возведение в степень" << endl << "6 - модуль числа" << endl << "7 - аргумент числа" << endl << "8 - тригонометрическая форма числа" << endl << "9 - показательная форма числа " << endl;
+			char sign2;
+			cin >> sign2;
+
+			if ((sign2 == '1') || (sign2 == '2') || (sign2 == '3') || (sign2 == '4')) {
+
+				cout << "Введите первое комплексное число. Первая цифра отвечает за реальную часть комплексного числа, " << endl << "вторая за мнимую, i писать не нужно (пример ввода: 11 67): " << endl;
+				cin >> real1 >> mnim1;
+				cout << "Введите второе комплексное число. Первая цифра отвечает за реальную часть комплексного числа, " << endl << "вторая за мнимую, i писать не нужно (пример ввода: 35 28): " << endl;
+				cin >> real2 >> mnim2;
+
+				complex< double > complex_chislo1(real1, mnim1);
+				complex< double > complex_chislo2(real2, mnim2);
+				complex < double > Result(0, 0);
+				switch (sign2) {
+
+				case '1':
+
+					Result = complex_chislo1 + complex_chislo2;
+
+					if (Result.imag() > 0) {
+						cout << "Сумма двух комплексных чисел равна " << Result.real() << "+" << Result.imag() << "i" << endl;
+					}
+					else {
+						cout << "Сумма двух комплексных чисел равна " << Result.real() << Result.imag() << "i" << endl;
+					}
+					break;
+
+				case '2':
+
+					Result = complex_chislo1 - complex_chislo2;
+
+					if (Result.imag() > 0) {
+						cout << "Разность двух комплексных чисел равна " << Result.real() << "+" << Result.imag() << "i" << endl;
+					}
+					else {
+						cout << "Разность двух комплексных чисел равна " << Result.real() << Result.imag() << "i" << endl;
+					}
+					break;
+
+				case '3':
+					Result = complex_chislo1 * complex_chislo2;
+
+					if (Result.imag() > 0) {
+						cout << "Призведение двух комплексных чисел равна " << Result.real() << "+" << Result.imag() << "i" << endl;
+					}
+					else {
+						cout << "Произведение двух комплексных чисел равна " << Result.real() << Result.imag() << "i" << endl;
+					}
+					break;
+
+				case '4':
+
+					Result = complex_chislo1 / complex_chislo2;
+
+					if (Result.imag() > 0) {
+						cout << "Частное двух комплексных чисел равна " << Result.real() << "+" << Result.imag() << "i" << endl;
+					}
+					else {
+						cout << "Частное двух комплексных чисел равна " << Result.real() << Result.imag() << "i" << endl;
+					}
+					break;
+				}
+			}
+			else {
+
+				cout << "Введите комплексное число. Первое число отвечает за реальную часть комплексного числа, " << endl << "второе за мнимую, i писать не нужно (пример ввода: 13 17): " << endl;
+				cin >> real1 >> mnim1;
+
+				complex < double > complex_chislo1(real1, mnim1);
+				complex < double > Result(0, 0);
+
+				switch (sign2) {
+
+				case '5':
+
+					cout << "В какую степень возвести число?" << endl;
+					cin >> stepen;
+
+					Result = pow(complex_chislo1, stepen);
+
+					if (Result.imag() > 0) {
+						cout << "Введенное комплексное число в степени " << stepen << "равна " << Result.real() << "+" << Result.imag() << "i" << endl;
+					}
+					else {
+						cout << "Введенное комплексное число в степени " << stepen << " равна " << Result.real() << Result.imag() << "i" << endl;
+					}
+					break;
+
+				case '6':
+
+					modul = sqrt(pow(real1, 2) + pow(mnim1, 2));
+					cout << "Модуль введенного комплексного числа равен " << modul << endl;
+					break;
+
+				case '7':
+
+					arg1 = atan(mnim1 / real1);
+					cout << "Аргумен введенного комплексного числа равен " << arg1 << endl;
+					break;
+
+				case '8':
+
+					modul = sqrt(pow(real1, 2) + pow(mnim1, 2));;
+					arg1 = atan(mnim1 / real1);
+					cout << "Введенное комплексное число в тригонометрической форме равно " << modul << "*(cos(" << arg1 << ") + i*sin(" << arg1 << "))" << endl;
+					break;
+
+				case '9':
+
+					modul = sqrt(pow(real1, 2) + pow(mnim1, 2));
+					arg1 = atan(mnim1 / real1);
+					cout << "Введенное комплексное число в показательной форме равно " << arg1 << "*exp(i*" << arg1 << ")" << endl;
+					break;
+				}
+			}
+			break;
+		}
+		cout << endl << endl;
+
+	}
+
+	return 0;
+}
