@@ -84,7 +84,7 @@ void printBoard(std::string board[8][8]) {
 	clearBoard();
 	//Print the board
 	for (int i = 0; i < 64; i++) {
-		printCell((i%8 + 1)*5, 1 + (3/8)*i, board[i/8][i%8][1], not bool((board[i/8][i%8][0] - 43)/2), ((i/8%2) * not bool(i%2)) + (((i + 8)/8%2) * bool(i%2)));
+		printCell((i%8 + 1)*5, 1 + 3*(i/8), board[i/8][i%8][1], not bool((board[i/8][i%8][0] - 43)/2), ((i/8%2) * not bool(i%2)) + (((i + 8)/8%2) * bool(i%2)));
 	}
 	defBoardX = _defBoardX;
 	defBoardY = _defBoardY;
@@ -146,42 +146,82 @@ void updateScoreField(float score[2]) {
 
 bool checkMove(std::string move, std::string board[8][8], bool side, int checkers[2], bool &beated) {
 	//Verify format
-	if (not (isalpha(move[0]) && \
-		isalpha(move[2]) && \
-		isdigit(move[1]) && \
-		isdigit(move[3])))
+	if (not (isalpha(move[0]) && isalpha(move[2]) && isdigit(move[1]) && isdigit(move[3])))
 		return false;
 
 	//Verify letters and digits
 	if (not ((96 < move[0] and move[0] < 105) && (96 < move[2] and move[2] < 105) && \
-		((0 < move[1] - 48 and move[1] - 48 < 9) && (0 < move[3] - 48 and move[3] - 48 < 9))))
+		((48 < move[1] and move[1] < 57) && (48 < move[3] and move[3] < 57))))
 		return false;
 
 	//Verify if the selected cell contains appropriate checker
-	if (board[7 - (move[1] - 49)][move[0] - 97] == "  " || \
-		(side + (board[7 - (move[1] - 49)][move[0] - 97][0] == '+') == 1))
+	if (board[56 - move[1]][move[0] - 97] == "  " || \
+		board[56 - move[3]][move[2] - 97] != "  " || \
+		(side + (board[56 - move[1]][move[0] - 97][0] == '+') == 0))
 		return false;
 
-	//Beat: 
-	//1. Whether the move is correct
-	//2. Whether the cell to move is empty
-	//3. Whether you beat the right color
-	if (std::abs(move[2] - move[0]) == 2 && std::abs(move[3] - move[1]) == 2 && \
-		board[7 - (move[3] - 49)][move[2] - 97] == "  " && \
-		board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2][0] == (side * 45 + not side * 43)) {
-
-		board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2] = "  ";
-		checkers[0] -= side;
-		checkers[1] -= not side;
-		beated = true;
-		return true;
+	//Make king
+	if (board[56 - move[1]][move[0] - 97][1] != 'D' && move[3] == '8') {
+		board[56 - move[1]][move[0] - 97][1] = 'D';
 	}
 
-	//Verify validity of the move
-	if (not (board[7 - (move[3] - 49)][move[2] - 97] == "  " && \
-		std::abs(move[2] - move[0]) == 1 && \
-		std::abs(move[3] - move[1]) == 1))
-		return false;
+	if (board[56 - move[1]][move[0] - 97][1] == 'D') {
+		std::vector<std::vector<int>> cells;
+		int sum = 0;
+
+		if (not (std::abs(move[2] - move[0]) == std::abs(move[3] - move[1])))
+			return false;
+
+		//King beat
+		if (move[0] < move[2] && move[1] < move[3]) {
+			//+-
+			for (int i = move[0] - 97 + 1, j = 56 - move[1] - 1; i < move[2] - 97; i++, j--) {
+				cells.push_back({ j, i });
+			}
+		} else if (move[0] < move[2] && move[1] > move[3]) {
+			//++
+			for (int i = move[0] - 97 + 1, j = 56 - move[1] + 1; i < move[2] - 97; i++, j++) {
+				cells.push_back({ j, i });
+			}
+		} else if (move[0] > move[2] && move[1] > move[3]) {
+			//-+
+			for (int i = move[0] - 97 - 1, j = 56 - move[1] + 1; i > move[2] - 97; i--, j++) {
+				cells.push_back({ j, i });
+			}
+		} else if (move[0] > move[2] && move[1] < move[3]) {
+			//--
+			for (int i = move[0] - 97 - 1, j = 56 - move[1] - 1; i > move[2] - 97 + 1; i--, j--) {
+				cells.push_back({ j, i });
+			}
+		}
+
+		for (int i = 0; i < cells.size(); i++) {
+			if (BOARD[cells[i][0]][cells[i][1]][0] == (not side * 45 + side * 43))
+				return 0;
+			if (BOARD[cells[i][0]][cells[i][1]] != "  ")
+				sum++;
+		}
+
+		checkers[0] -= side * sum;
+		checkers[1] -= not side * sum;
+	} else {
+		//Standart checker beat: 
+		//1. Whether the move is correct
+		//3. Whether you beat the right color
+		if (std::abs(move[2] - move[0]) == 2 && std::abs(move[3] - move[1]) == 2 && \
+			board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2][0] == (side * 45 + not side * 43)) {
+
+			board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2] = "  ";
+			checkers[0] -= side;
+			checkers[1] -= not side;
+			beated = true;
+			return true;
+		}
+
+		//Verify validity of the checker move
+		if (not (std::abs(move[2] - move[0]) == 1 && std::abs(move[3] - move[1]) == 1))
+			return false;
+	}
 
 	return true;
 }
