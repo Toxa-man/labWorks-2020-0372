@@ -1,11 +1,10 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
-#include <fcntl.h>
-#include <io.h>
 #include <vector>
-#include <cmath>
-#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include "nlohmann/json.h"
 
 //Colors
 #define fblue	0x0001
@@ -17,37 +16,27 @@
 #define bred	0x0040
 #define bint	0x0080
 
+using std::cout;
+using std::cin;
+using std::string;
+using std::vector;
+using json = nlohmann::json;
+
 //Starting board
-std::string BOARD[8][8] = { {"  ", "-P", "  ", "-P", "  ", "-P", "  ", "-P"},
-							{"-P", "  ", "-P", "  ", "-P", "  ", "-P", "  "},
-							{"  ", "-P", "  ", "-P", "  ", "-P", "  ", "-P"},
-							{"  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "},
-							{"  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "},
-							{"+P", "  ", "+P", "  ", "+P", "  ", "+P", "  "},
-							{"  ", "+P", "  ", "+P", "  ", "+P", "  ", "+P"},
-							{"+P", "  ", "+P", "  ", "+P", "  ", "+P", "  "} };
+string BOARD[8][8] = { {"  ", "-P", "  ", "-P", "  ", "-P", "  ", "-P"},
+						{"-P", "  ", "-P", "  ", "-P", "  ", "-P", "  "},
+						{"  ", "-P", "  ", "-P", "  ", "-P", "  ", "-P"},
+						{"  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "},
+						{"  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "},
+						{"+P", "  ", "+P", "  ", "+P", "  ", "+P", "  "},
+						{"  ", "+P", "  ", "+P", "  ", "+P", "  ", "+P"},
+						{"+P", "  ", "+P", "  ", "+P", "  ", "+P", "  "} };
 
-//Player
-struct Player {
-	std::string name;
-	bool color; //0 - black, 1 - white
-	int wins = 0;
-	int loses = 0;
-};
+//For terminal color and cursor manipulation
+HANDLE terminal = GetStdHandle(STD_OUTPUT_HANDLE); //Get the console output handle
+COORD cursorPosition; //For cursor coords storing
 
-//Starting coordinates constants and variables for the board
-const int _defBoardX = 5, _defBoardY = 1;
-int defBoardX = _defBoardX, defBoardY = _defBoardY;
-HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE); //For terminal colors manipulation
-
-//Goto parameters
-HANDLE terminal = GetStdHandle(STD_OUTPUT_HANDLE);
-COORD cursorPosition;
-
-void printBoard(std::string board[8][8]);
-
-void gotoXY(int x, int y)
-{
+void gotoXY(int x, int y) {
 	cursorPosition.X = x;
 	cursorPosition.Y = y;
 	SetConsoleCursorPosition(terminal, cursorPosition);
@@ -57,7 +46,7 @@ void gotoXY(int x, int y)
 void clearBoard() {
 	for (int i = 0; i < 45; i++) {
 		for (int j = 1; j < 27; j++) {
-			gotoXY(i, j); std::cout << " ";
+			gotoXY(i, j); cout << " ";
 		}
 	}
 }
@@ -65,250 +54,355 @@ void clearBoard() {
 //Print cell of the board
 void printCell(int x, int y, char value, bool checkerColor, bool cellColor) {
 	if (not cellColor) {
-		SetConsoleTextAttribute(color, bred | bgreen | bblue);
+		SetConsoleTextAttribute(terminal, bred | bgreen | bblue);
 		for (int i = 0; i < 3; i++) {
-			gotoXY(x, y + i); std::cout << "     ";
+			gotoXY(x, y + i); cout << "     ";
 		}
 	}
 	else {
-		SetConsoleTextAttribute(color, bint | checkerColor * (fint | fred | fgreen | fblue));
-		gotoXY(x, y); std::cout << "     ";
-		gotoXY(x, y + 1); std::cout << "  " << value << "  ";
-		gotoXY(x, y + 2); std::cout << "     ";
+		SetConsoleTextAttribute(terminal, bint | checkerColor * (fint | fred | fgreen | fblue));
+		gotoXY(x, y); cout << "     ";
+		gotoXY(x, y + 1); cout << "  " << value << "  ";
+		gotoXY(x, y + 2); cout << "     ";
 	}
-	SetConsoleTextAttribute(color, fblue | fgreen | fred);
+	SetConsoleTextAttribute(terminal, fblue | fgreen | fred);
 }
 
 //Print the board
-void printBoard(std::string board[8][8]) {
+void printBoard(string board[8][8]) {
 	clearBoard();
 	//Print the board
 	for (int i = 0; i < 64; i++) {
 		printCell((i%8 + 1)*5, 1 + 3*(i/8), board[i/8][i%8][1], not bool((board[i/8][i%8][0] - 43)/2), ((i/8%2) * not bool(i%2)) + (((i + 8)/8%2) * bool(i%2)));
 	}
-	defBoardX = _defBoardX;
-	defBoardY = _defBoardY;
 
 	for (int i = 0; i < 8; i++) {
-		gotoXY(defBoardX - 3, defBoardY + 1 + 3 * i);
-		std::cout << 8 - i;
-		gotoXY(defBoardX + 2 + 5 * i, defBoardY + 25);
-		std::cout << (char)('A' + i);
+		gotoXY(2, 2 + 3 * i);
+		cout << 8 - i;
+		gotoXY(7 + 5 * i, 26);
+		cout << (char)('A' + i);
 	}
 }
 
 //Print other game elements
 void printGameElements() {
-	gotoXY(46, 1); std::cout << "****** Score ******";
-	gotoXY(46, 2); std::cout << "* White  | Black  *";
-	gotoXY(46, 3); std::cout << "*        |        *";
-	gotoXY(46, 4); std::cout << "*        |        *";
-	gotoXY(46, 5); std::cout << "*        |        *";
-	gotoXY(46, 6); std::cout << "*******************";
+	gotoXY(46, 1); cout << "****** Score ******";
+	gotoXY(46, 2); cout << "* White  | Black  *";
+	gotoXY(46, 3); cout << "*        |        *";
+	gotoXY(46, 4); cout << "*        |        *";
+	gotoXY(46, 5); cout << "*        |        *";
+	gotoXY(46, 6); cout << "*******************";
 
-	gotoXY(46, 7); std::cout << "****** Moves ******";
+	gotoXY(46, 7); cout << "****** Moves ******";
 	for (int i = 8; i < 32; i++) {
-		gotoXY(46, i); std::cout << "*        |        *";
+		gotoXY(46, i); cout << "*                 *";
 	}
-	gotoXY(46, 32); std::cout << "*******************";
+	gotoXY(46, 32); cout << "*******************";
 
-	gotoXY(5, 28); std::cout << "***** Keywords *****";
-	gotoXY(5, 29); std::cout << "* exit - To exit   *";
-	gotoXY(5, 30); std::cout << "* draw - To draw   *";
-	gotoXY(5, 31); std::cout << "* rsgn - To resign *";
-	gotoXY(5, 32); std::cout << "********************";
+	gotoXY(5, 28); cout << "***** Commands *****";
+	gotoXY(5, 29); cout << "* exit - To exit   *";
+	gotoXY(5, 30); cout << "* draw - To draw   *";
+	gotoXY(5, 31); cout << "* rsgn - To resign *";
+	gotoXY(5, 32); cout << "********************";
 
-	gotoXY(27, 28); std::cout << "*** Make move ***";
-	gotoXY(27, 29); std::cout << "*               *";
-	gotoXY(27, 30); std::cout << "*               *";
-	gotoXY(27, 31); std::cout << "*               *";
-	gotoXY(27, 32); std::cout << "*****************";
+	gotoXY(27, 28); cout << "*** Make move ***";
+	gotoXY(27, 29); cout << "*               *";
+	gotoXY(27, 30); cout << "*               *";
+	gotoXY(27, 31); cout << "*               *";
+	gotoXY(27, 32); cout << "*****************";
 }
 
-void updateMovesField(std::vector<std::string> moves) {
-	if (moves.size() % 49 <= 24) {
-		for (int i = 0; i < moves.size() % 25; i++) {
-			gotoXY(47, 8 + i); std::cout << i + 1 << ". " << moves[i];
+void updateMovesField(vector<string> moves) {
+	if ((moves.size() - 1) % 24 == 0) {
+		gotoXY(46, 7); cout << "****** Moves ******";
+		for (int i = 8; i < 32; i++) {
+			gotoXY(46, i); cout << "*                 *";
 		}
-	} else if (moves.size() % 49 <= 48) {
-		for (int i = 25; i < moves.size() + 1; i++) {
-			gotoXY(57, 8 + i - 25); std::cout << i << ". " << moves[i - 1];
-		}
+		gotoXY(46, 32); cout << "*******************";
+	}
+
+	for (int i = 24*((int)moves.size()/24); i < (int)moves.size() % 24 + 24*(moves.size() / 24); i++) {
+		gotoXY(47, 8 + i%24); cout << i + 1 << ". " << moves[i];
 	}
 }
 
 void updateScoreField(float score[2]) {
-	gotoXY(50, 4); std::cout << "  ";
-	gotoXY(50, 4); std::cout << score[1];
-	gotoXY(59, 4); std::cout << "  ";
-	gotoXY(59, 4); std::cout << score[0];
+	gotoXY(50, 4); cout << "  ";
+	gotoXY(50, 4); cout << score[1];
+	gotoXY(59, 4); cout << "  ";
+	gotoXY(59, 4); cout << score[0];
 }
 
-bool checkMove(std::string move, std::string board[8][8], bool side, int checkers[2], bool &beated) {
-	//Verify format
-	if (not (isalpha(move[0]) && isalpha(move[2]) && isdigit(move[1]) && isdigit(move[3])))
-		return false;
-
-	//Verify letters and digits
-	if (not ((96 < move[0] and move[0] < 105) && (96 < move[2] and move[2] < 105) && \
-		((48 < move[1] and move[1] < 57) && (48 < move[3] and move[3] < 57))))
-		return false;
+bool checkMove(vector<int> move, string board[8][8], bool side, int checkers[2], bool &beated) {
+	//Verify format and limits
+	for (int element: move) {
+		if (element > 7 || element < 0)
+			return false;
+	}
 
 	//Verify if the selected cell contains appropriate checker
-	if (board[56 - move[1]][move[0] - 97] == "  " || \
-		board[56 - move[3]][move[2] - 97] != "  " || \
-		(side + (board[56 - move[1]][move[0] - 97][0] == '+') == 0))
+	if (board[ move[0] ][ move[1] ] == "  " || \
+		board[ move[2] ][ move[3] ] != "  " || \
+		(side + (board[ move[0] ][ move[1] ][0] == '+') == 1))
 		return false;
 
 	//Make king
-	if (board[56 - move[1]][move[0] - 97][1] != 'D' && move[3] == '8') {
-		board[56 - move[1]][move[0] - 97][1] = 'D';
-	}
+	if (((move[2] == 0 && side) || (move[2] == 7 && not side)) && \
+		board[ move[0] ][ move[1] ][1] != 'D')
+		board[ move[0] ][ move[1] ][1] = 'D';
 
-	if (board[56 - move[1]][move[0] - 97][1] == 'D') {
-		std::vector<std::vector<int>> cells;
-		int sum = 0;
+	//Make move
+	if (board[ move[0] ][ move[1] ][1] == 'D') {
+		//King moves
+		vector<vector<int>> cells;
+		int rivalCounter = 0;
+		int colChange = (move[1] < move[3]) - (move[1] > move[3]),
+			rowChange = -(move[0] < move[2]) + (move[0] > move[2]);
 
-		if (not (std::abs(move[2] - move[0]) == std::abs(move[3] - move[1])))
+		//Check whether the move is correct
+		if (not (abs(move[3] - move[1]) == abs(move[2] - move[0])))
 			return false;
 
-		//King beat
-		if (move[0] < move[2] && move[1] < move[3]) {
-			//+-
-			for (int i = move[0] - 97 + 1, j = 56 - move[1] - 1; i < move[2] - 97; i++, j--) {
-				cells.push_back({ j, i });
-			}
-		} else if (move[0] < move[2] && move[1] > move[3]) {
-			//++
-			for (int i = move[0] - 97 + 1, j = 56 - move[1] + 1; i < move[2] - 97; i++, j++) {
-				cells.push_back({ j, i });
-			}
-		} else if (move[0] > move[2] && move[1] > move[3]) {
-			//-+
-			for (int i = move[0] - 97 - 1, j = 56 - move[1] + 1; i > move[2] - 97; i--, j++) {
-				cells.push_back({ j, i });
-			}
-		} else if (move[0] > move[2] && move[1] < move[3]) {
-			//--
-			for (int i = move[0] - 97 - 1, j = 56 - move[1] - 1; i > move[2] - 97 + 1; i--, j--) {
-				cells.push_back({ j, i });
+		//Find all possible moves for the king to beat
+		for (int i = move[0] - rowChange, j = move[1] + colChange; j != (move[3] - (move[1] > move[3])); i -= rowChange, j += colChange) {
+			if (board[i][j][0] == (not side * 45 + side * 43))
+				return false; //If found own checker, stop (the move is prohibited)
+
+			if (board[i][j][0] == (side * 45 + not side * 43) && ++rivalCounter > 1 )
+				return false; //If found more than 1 rival checker, stop
+
+			cells.push_back({ i, j });
+		}
+
+		for (auto element: cells) {
+			if (board[element[0]][element[1]][0] == (side * 45 + not side * 43)) {
+				board[element[0]][element[1]] = "  "; //Remove rival checker
+				checkers[not side]--; //Decrease rival checkers count
+				beated = true; //For multiple beats
 			}
 		}
 
-		for (int i = 0; i < cells.size(); i++) {
-			if (BOARD[cells[i][0]][cells[i][1]][0] == (not side * 45 + side * 43))
-				return 0;
-			if (BOARD[cells[i][0]][cells[i][1]] != "  ")
-				sum++;
-		}
-
-		checkers[0] -= side * sum;
-		checkers[1] -= not side * sum;
 	} else {
-		//Standart checker beat: 
+		//Standard checker beat: 
 		//1. Whether the move is correct
 		//3. Whether you beat the right color
-		if (std::abs(move[2] - move[0]) == 2 && std::abs(move[3] - move[1]) == 2 && \
-			board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2][0] == (side * 45 + not side * 43)) {
+		if (abs(move[3] - move[1]) == 2 && abs(move[2] - move[0]) == 2 && \
+			board[ (move[0] + move[2]) / 2 ][ (move[1] + move[3]) / 2 ][0] == (side * 45 + not side * 43)) {
 
-			board[7 - ((move[1] + move[3] - 98)) / 2][(move[0] + move[2] - 194) / 2] = "  ";
-			checkers[0] -= side;
-			checkers[1] -= not side;
-			beated = true;
+			board[(move[0] + move[2]) / 2][ (move[1] + move[3]) / 2] = "  "; //Remove rival checker
+			checkers[not side]--; //Decrease rival checkers count
+			beated = true; //For series of beats
 			return true;
 		}
 
 		//Verify validity of the checker move
-		if (not (std::abs(move[2] - move[0]) == 1 && std::abs(move[3] - move[1]) == 1))
+		if (not (abs(move[3] - move[1]) == 1 && abs(move[2] - move[0]) == 1))
 			return false;
 	}
 
 	return true;
 }
 
-void findAvailableBeats(std::string move, std::vector<std::string> moves, std::string board[8][8], bool side, int checkers[2]) {
-	std::vector<int> currPos = { move[2] - 97, 56 - move[3] };
+void findNextBeat(string move, vector<string>& moves, string board[8][8], bool side, int checkers[2]) {
+	vector<int> prevPos = { move[0] - 97, 56 - move[1] }; //For multiple king beats
+	vector<int> currPos = { move[2] - 97, 56 - move[3] };
 
-	while (true) {
-		std::vector<std::vector<int>> availMoves;
+	if (board[56 - move[3]][move[2] - 97][1] == 'P') {
+		//Multiple beats for standard checkers
+		while (true) {
+			vector<vector<int>> availMoves;
 
-		for (int i = -1; i <= 1; i += 2) {
-			for (int j = -1; j <= 1; j += 2) {
-				if (currPos[1] + 2 * i <= 8 && currPos[1] + 2 * i >= 0 && currPos[0] + 2 * j >= 0 && currPos[0] + 2 * j <= 8) {
-					if (board[currPos[1] + i][currPos[0] + j][0] == (side * 45 + not side * 43) && \
-						board[currPos[1] + 2 * i][currPos[0] + 2 * j] == "  ") {
-						availMoves.push_back({ currPos[1] + 2 * i, currPos[0] + 2 * j, currPos[1] + i, currPos[0] + j });
+			for (int i = -1; i <= 1; i += 2) {
+				for (int j = -1; j <= 1; j += 2) {
+					if (currPos[1] + 2 * i < 8 && currPos[1] + 2 * i >= 0 && currPos[0] + 2 * j >= 0 && currPos[0] + 2 * j < 8) {
+						if (board[currPos[1] + i][currPos[0] + j][0] == (side * 45 + not side * 43) && \
+							board[currPos[1] + 2 * i][currPos[0] + 2 * j] == "  ") {
+							//Next checker coords + rival checker coords to empty its cell
+							availMoves.push_back({ currPos[1] + 2 * i, currPos[0] + 2 * j, currPos[1] + i, currPos[0] + j });
+						}
 					}
 				}
 			}
+
+			//Print interactive menu if found available moves
+			if (availMoves.size() > 0) {
+				bool running = true;
+				int menuItem = 0, bias = 0;
+
+				printBoard(board);
+				gotoXY(33, 30);
+				cout << "    ";
+				gotoXY(33, 29);
+				cout << "->";
+
+				while (running) {
+					for (int i = 0; i < (int)availMoves.size(); i++) {
+						gotoXY(35, 29 + i); cout << char(availMoves[i][1] + 97) << 8 - availMoves[i][0];
+					}
+
+					switch (_getch()) {
+					case 72: //Up key
+						if (menuItem == 0) continue;
+						gotoXY(33, 29 + bias--); cout << "  ";
+						gotoXY(33, 29 + bias); cout << "->";
+						menuItem--;
+						continue;
+
+					case 80: //Down key
+						if (menuItem == availMoves.size() - 1) continue;
+						gotoXY(33, 29 + bias++); cout << "  ";
+						gotoXY(33, 29 + bias); cout << "->";
+						menuItem++;
+						continue;
+
+					case 13: //Enter
+						running = false;
+					}
+				}
+
+				swap(board[ currPos[1] ][ currPos[0] ], board[ availMoves[menuItem][0] ][ availMoves[menuItem][1] ]);
+				currPos = { availMoves[menuItem][1], availMoves[menuItem][0] }; //Reset current position
+				board[ availMoves[menuItem][2] ][ availMoves[menuItem][3] ] = "  "; //Remove rival checker
+				moves.back() = moves.back() + ':' + char(currPos[0] + 97) + char(56 - currPos[1]);
+
+				if (((currPos[1] == 0 && side) || (currPos[1] == 7 && not side)) && \
+					board[currPos[1]][currPos[0]][1] != 'D')
+					board[currPos[1]][currPos[0]][1] = 'D';
+
+				checkers[not side]--; //Decrease rival checkers count
+
+				for (int i = 29; i < 32; i++) { //Empty the menu
+					gotoXY(33, i); cout << "      ";
+				}
+			}
+			else {
+				break;
+			}
 		}
+	} else {
+		//Multiple beats for king checkers
+		while (true) {
+			vector<vector<int>> availMoves;
+			vector<int> rival;
+			string nextMove;
 
-		if (availMoves.size() > 0) {
-			bool running = true;
-			int menuItem = 0, bias = 0;
-
-			printBoard(board);
-			gotoXY(33, 30);
-			std::cout << "    ";
-			gotoXY(33, 29);
-			std::cout << "->";
-
-			while (running) {
-				for (int i = 0; i < availMoves.size(); i++) {
-					gotoXY(35, 29 + i); std::cout << char(availMoves[i][1] + 97) << 8 - availMoves[i][0];
-				}
-
-				switch (_getch()) {
-				case 72: //Up key
-					if (menuItem == 0) continue;
-					gotoXY(33, 29 + bias--); std::cout << "  ";
-					gotoXY(33, 29 + bias); std::cout << "->";
-					menuItem--;
-					continue;
-
-				case 80: //Down key
-					if (menuItem == availMoves.size() - 1) continue;
-					gotoXY(33, 29 + bias++); std::cout << "  ";
-					gotoXY(33, 29 + bias); std::cout << "->";
-					menuItem++;
-					continue;
-
-				case 13: //Enter
-					running = false;
+			//Up-Right
+			if (not (prevPos[1] < currPos[1] && prevPos[0] > currPos[0])) {
+				for (int i = currPos[0] + 1, j = currPos[1] - 1; i < 8 && j > -1; i++, j--) {
+					if (board[j][i][0] == (not side * 45 + side * 43)) break; //If find own checker, stop
+					if (board[j][i][0] == (side * 45 + not side * 43)) { //Find the closest rival checker
+						if (board[j - 1][i + 1] == "  ") { //Check next cell after the cell with rival checker to move to
+							rival = { j, i };
+							for (++i, --j; i < 8 && j > -1; i++, j--) { //Go further and gather available cells to move (beat)
+								if (board[j][i] == "  ") {
+									availMoves.push_back({ j, i, rival[0], rival[1] });
+								}
+								else {
+									break; //If found not empty cell then stop
+								}
+							}
+						}
+						break; //If this suppossedly empty cell is not so then stop
+					}
 				}
 			}
 
-			std::swap(board[currPos[1]][currPos[0]], board[availMoves[menuItem][0]][availMoves[menuItem][1]]);
-			currPos = { availMoves[menuItem][1], availMoves[menuItem][0] };
-			board[availMoves[menuItem][2]][availMoves[menuItem][3]] = "  ";
-			checkers[not side]--;
-
-			for (int i = 29; i < 32; i++) {
-				gotoXY(33, i); std::cout << "      ";
+			//Down-Right
+			if (not (prevPos[1] > currPos[1] && prevPos[0] > currPos[0])) {
+				for (int i = currPos[0] + 1, j = currPos[1] + 1; i < 8 && j < 8; i++, j++) {
+					if (board[j][i][0] == (not side * 45 + side * 43)) break;
+					if (board[j][i][0] == (side * 45 + not side * 43)) {
+						if (board[j + 1][i + 1] == "  ") {
+							rival = { j, i };
+							for (++i, ++j; i < 8 && j < 8; i++, j++) {
+								if (board[j][i] == "  ") {
+									availMoves.push_back({ j, i, rival[0], rival[1] });
+								}
+								else {
+									break;
+								}
+							}
+						}
+						break;
+					}
+				}
 			}
-		} else {
-			break;
+
+			//Down-Left
+			if (not (prevPos[1] > currPos[1] && prevPos[0] < currPos[0])) {
+				for (int i = currPos[0] - 1, j = currPos[1] + 1; i > -1 && j < 8; i--, j++) {
+					if (board[j][i][0] == (not side * 45 + side * 43)) break;
+					if (board[j][i][0] == (side * 45 + not side * 43)) {
+						if (board[j + 1][i - 1] == "  ") {
+							rival = { j, i };
+							for (--i, ++j; i > -1 && j < 8; i--, j++) {
+								if (board[j][i] == "  ") {
+									availMoves.push_back({ j, i, rival[0], rival[1] });
+								}
+								else {
+									break;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+
+			//Up-Left
+			if (not (prevPos[1] < currPos[1] && prevPos[0] < currPos[0])) {
+				for (int i = currPos[0] - 1, j = currPos[1] - 1; i > -1 && j > -1; i--, j--) {
+					if (board[j][i][0] == (not side * 45 + side * 43)) break;
+					if (board[j][i][0] == (side * 45 + not side * 43)) {
+						if (board[j - 1][i - 1] == "  ") {
+							rival = { j, i };
+							for (--i, --j; i > -1 && j > -1; i--, j--) {
+								if (board[j][i] == "  ") {
+									availMoves.push_back({ j, i, rival[0], rival[1] });
+								}
+								else {
+									break;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+			
+			if (availMoves.size() > 0) {
+				printBoard(board);
+				gotoXY(33, 30);
+				cout << "    ";
+				gotoXY(33, 30);
+				cin >> nextMove;
+
+				for (auto element : availMoves) {
+					if (nextMove[0] - 97 == element[1] && 56 - nextMove[1] == element[0]) {
+						swap(board[ currPos[1] ][ currPos[0] ], board[ element[0] ][ element[1] ]);
+						board[ element[2] ][ element[3] ] = "  "; //Remove rival checker
+						prevPos = { currPos[0], currPos[1] }; //Reset previous position
+						currPos = { element[1], element[0] }; //Reset current position
+						moves.back() = moves.back() + ':' + char(element[1] + 97) + char(56 - element[0]);
+						checkers[not side]--; //Decrease rival checkers count
+					}
+				}
+			} else {
+				break;
+			}
 		}
 	}
 }
 
-void whoWon(bool side, Player players[2]) {
-	clearBoard();
-	gotoXY(9, 10); std::cout << "####### Game over #######";
-	gotoXY(21 - players[not side].name.length()/2, 12);
-	std::cout << players[not side].name;
-	gotoXY(14, 13); std::cout << "is victorious!";
-	gotoXY(9, 15); std::cout << "#########################";
-}
-
-bool gameProcess(Player players[2], float score[2]) {
-	std::vector<std::string> moves;
-	std::string move;
-	bool side = 1; //0 - black, 1 - white
+bool gameProcess(string players[2], float score[2], int &draws) {
+	vector<string> moves;
+	vector<int> move;
 	int checkers[2] = { 12, 12 }; //Black, White
-	bool draw = false;
-	bool beated = false;
-	std::string board[8][8];
+	bool side = 1, //0 - black, 1 - white
+		 draw = false,
+		 beated = false;
+	string action;
+	string board[8][8];
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -317,21 +411,23 @@ bool gameProcess(Player players[2], float score[2]) {
 	}
 
 	//Print starting score and moves
-	updateMovesField(moves);
 	updateScoreField(score);
 
 	while (true) {
 		gotoXY(33, 30);
-		std::cout << "    ";
+		cout << "       ";
 		gotoXY(33, 30);
-		std::cin >> move;
+		cin >> action;
 
-		if (move == "exit") {
+		if (action.length() != 4) continue;
+
+		//Commands handler
+		if (action == "exit") {
 			return false;
 		}
-		else if (move == "draw") {
+		else if (action == "draw") {
 			gotoXY(29, 30);
-			std::cout << "Draw? (y/n)   ";
+			cout << "Draw? (y/n)   ";
 			gotoXY(41, 30);
 			switch (_getch()) {
 			case 110:
@@ -340,45 +436,56 @@ bool gameProcess(Player players[2], float score[2]) {
 				score[0] += 0.5;
 				score[1] += 0.5;
 				draw = true;
+				draws++;
 			}
 		}
-		else if (move == "rsgn") {
+		else if (action == "rsgn") {
 			checkers[side] = 0;
 		} else {
+			move = { 56 - action[1], action[0] - 97, 56 - action[3], action[2] - 97};
+			//Check move availability and correctness
 			if (not checkMove(move, board, side, checkers, beated)) {
 				continue;
 			}
 
-			std::swap(board[7 - (move[1] - 49)][move[0] - 97], board[7 - (move[3] - 49)][move[2] - 97]);
-			moves.push_back(move);
+			swap(board[ move[0] ][ move[1] ], board[ move[2] ][ move[3] ]);
+			moves.push_back(action.substr(0, 2) + ':' + action.substr(2, 2));
 
 			//Multiple beats
 			if (beated) {
-				findAvailableBeats(move, moves, board, side, checkers);
+				findNextBeat(action, moves, board, side, checkers);
 				beated = false;
 			}
-			side = not side;
+			side = not side; //Change the side
 
 			printBoard(board);
 			updateMovesField(moves);
 		}
 
+		//If one of the side have zero checker, change score and print the winner
 		if (checkers[0] * checkers[1] == 0) {
-			whoWon(not side, players);
+			clearBoard();
+			gotoXY(9, 10); cout << "------- Game over -------";
+			gotoXY(21 - players[not side].length()/2, 12);
+			cout << players[not side];
+			gotoXY(14, 13); cout << "is victorious!";
+
 			score[not side]++;
 		}
+
 		if (checkers[0] * checkers[1] == 0 or draw) {
+			//Draw handler
 			if (draw) {
 				clearBoard();
 				gotoXY(20, 15);
-				std::cout << "DRAW!";
+				cout << "DRAW!";
 			}
 			updateScoreField(score);
 
 			gotoXY(5, 17);
-			std::cout << "Press <Enter> to play another game";
+			cout << "Press <Enter> to play another game";
 			gotoXY(5, 18);
-			std::cout << "        Or <ESC> to exit";
+			cout << "        Or <ESC> to exit";
 
 			switch (_getch()) {
 			case 13:
@@ -390,70 +497,126 @@ bool gameProcess(Player players[2], float score[2]) {
 	}
 }
 
+void saveGameToFile(string players[2], float score[2], int draws, int games) {
+	json stats;
+	std::ifstream statsFileIn("stats.txt");
+	if (not statsFileIn.is_open()) {
+		std::ofstream o("stats.txt");
+	} else {
+		statsFileIn >> stats;
+	}
+
+	for (int i = 0; i < 2; i++) {
+		if (stats["players"][players[i]] == nullptr) {
+			stats["players"][players[i]]["all_wins"] = 0;
+			stats["players"][players[i]]["all_loses"] = 0;
+			stats["players"][players[i]]["games_count"] = 0;
+		}
+
+		stats["players"][players[i]]["all_wins"] = int(stats["players"][players[i]]["all_wins"] + score[i] - 0.5 * draws);
+		stats["players"][players[i]]["all_loses"] = int(stats["players"][players[i]]["all_loses"] + score[1 - i] - 0.5 * draws);
+		stats["players"][players[i]]["games_count"] = stats["players"][players[i]]["games_count"] + games;
+	}
+
+	std::ofstream statsFileOut("stats.txt");
+	statsFileOut << std::setw(4) << stats;
+	statsFileOut.close();
+}
+
 void newGame() {
-	Player Player1, Player2;
-	Player players[2] = { Player1, Player2 };
-	float score[2] = { 0, 0 };
-	int games = 0;
-	int defX = 8;
+	string Player1, Player2;
+	string players[2] = { Player1, Player2 }; //Black, White
+	float score[2] = { 0, 0 }; //Black, White
+	int games = 0, draws = 0, defX = 8;
 	bool continueGame;
 
-	gotoXY(defX, 12); std::cout << "#################### New Game ###################";
-	gotoXY(defX, 13); std::cout << "## White's player name: |                      ##";
-	gotoXY(defX, 14); std::cout << "##----------------------|----------------------##";
-	gotoXY(defX, 15); std::cout << "## Black's player name: |                      ##";
-	gotoXY(defX, 16); std::cout << "#################################################";
+	gotoXY(9, 12); cout << "------------------- New Game -----------------";
+	gotoXY(9, 13); cout << "| White's player name: |                     |";
+	gotoXY(9, 14); cout << "|----------------------|---------------------|";
+	gotoXY(9, 15); cout << "| Black's player name: |                     |";
+	gotoXY(9, 16); cout << "----------------------------------------------";
 
-	while (players[0].name.length() < 3) {
-		gotoXY(defX + 26, 13); std::cout << " ";
-		gotoXY(defX + 26, 13); std::cin >> players[0].name;
+	while (players[1].length() < 1) {
+		gotoXY(34, 13); cout << "                   ";
+		gotoXY(34, 13); cin >> players[1];
 	}
-	players[0].color = 1;
 
-	while (players[1].name.length() < 3) {
-		gotoXY(defX + 26, 15); std::cout << " ";
-		gotoXY(defX + 26, 15); std::cin >> players[1].name;
+	while (players[0].length() < 1) {
+		gotoXY(34, 15); cout << "                   ";
+		gotoXY(34, 15); cin >> players[0];
+		if (players[0] == players[1]) {
+			players[0] = "";
+		}
 	}
-	players[1].color = 0;
 
 	system("CLS");
 	do {
 		printBoard(BOARD);
 		printGameElements();
-		continueGame = gameProcess(players, score);
+		continueGame = gameProcess(players, score, draws);
 		games++;
 	} while (continueGame);
+
+	saveGameToFile(players, score, draws, games);
+}
+
+void showStats() {
+	json stats;
+	int i = 0;
+	std::ifstream statsFileIn("stats.txt");
+	if (not statsFileIn.is_open()) {
+		gotoXY(15, 10); cout << "--- Not found any played game ---";
+	}
+	else {
+		statsFileIn >> stats;
+		gotoXY(24, 10); cout << "--- Statistics ---";
+		gotoXY(7, 12); cout << "----------------------------------------------------";
+		gotoXY(7, 13); cout << "|    Player    |   Games   |   Wins   |   Loses    |";
+		gotoXY(7, 14); cout << "----------------------------------------------------";
+
+		for (auto player : stats["players"].items()) {
+			gotoXY(7, 15 + 2 * i); cout << "|              |           |          |            |";
+			gotoXY(7, 16 + 2 * i); cout << "----------------------------------------------------";
+			gotoXY(15 - player.key().length()/2, 15 + 2*i); cout << player.key();;
+			gotoXY(27, 15 + 2 * i); cout << player.value()["games_count"];
+			gotoXY(39, 15 + 2 * i); cout << player.value()["all_wins"];
+			gotoXY(51, 15 + 2 * i++); cout << player.value()["all_loses"];
+		}
+	}
+	_getch();
 }
 
 //Game menu
 void menu() {
-	int defX = 22, bias = 2;
+	int menuItem, bias;
 	int score[2] = { 12, 12 };
+	bool running;
 
 menu:
-	int menuItem = 1;
-	bool running = true;
+	menuItem = 1;
+	bias = 2;
+	running = true;
 
 	system("CLS");
-	gotoXY(defX - 2, 14); std::cout << "->";
+	gotoXY(20, 14); cout << "->";
 	while (running) {
-		gotoXY(defX, 12); std::cout << "#### Main Menu ####\n";
-		gotoXY(defX, 14); std::cout << "1. New Game\n";
-		gotoXY(defX, 15); std::cout << "2. Exit\n";
-		gotoXY(defX, 19); std::cout << "###################\n";
+		gotoXY(18, 12); cout << "------ Main Menu ------";
+		gotoXY(22, 14); cout << "1. New Game";
+		gotoXY(22, 15); cout << "2. Show statistics";
+		gotoXY(22, 16); cout << "3. Exit";
 
 		switch (_getch()) {
 		case 72: //Up key
 			if (menuItem == 1) continue;
-			gotoXY(defX - 2, 12 + bias--); std::cout << "  ";
-			gotoXY(defX - 2, 12 + bias); std::cout << "->";
+			gotoXY(20, 12 + bias--); cout << "  ";
+			gotoXY(20, 12 + bias); cout << "->";
 			menuItem--;
 			continue;
 
 		case 80: //Down key
-			if (menuItem == 2) continue;
-			gotoXY(defX - 2, 12 + bias++); std::cout << "  ";
-			gotoXY(defX - 2, 12 + bias); std::cout << "->";
+			if (menuItem == 3) continue;
+			gotoXY(20, 12 + bias++); cout << "  ";
+			gotoXY(20, 12 + bias); cout << "->";
 			menuItem++;
 			continue;
 
@@ -462,26 +625,24 @@ menu:
 		}
 	}
 
+	system("CLS");
 	switch (menuItem) {
 	case 1:
-		system("CLS");
 		newGame();
 		break;
-
 	case 2:
+		showStats();
+		break;
+	case 3:
 		exit(0);
 	}
 	goto menu;
 }
 
-
-
 int main() {
 	//Set terminal size
-	HWND console = GetConsoleWindow();
-	RECT window;
-	GetWindowRect(console, &window);
-	MoveWindow(console, 100, 150, 560, 570, TRUE);
+	HWND console = GetConsoleWindow(); //Get window handle used by the console
+	MoveWindow(console, 100, 150, 560, 570, TRUE); //HWND, X, Y, Width, Height, repaint window
 
 	menu();
 	return 0;
