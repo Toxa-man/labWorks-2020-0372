@@ -578,7 +578,7 @@ void showStats() {
 			gotoXY(7, 15 + 2 * i); cout << "|              |           |          |            |";
 			gotoXY(7, 16 + 2 * i); cout << "----------------------------------------------------";
 			gotoXY(15 - player.key().length()/2, 15 + 2*i); cout << player.key();;
-			gotoXY(27, 15 + 2 * i); cout << player.value()["games_count"];
+			gotoXY(28, 15 + 2 * i); cout << player.value()["games_count"];
 			gotoXY(39, 15 + 2 * i); cout << player.value()["all_wins"];
 			gotoXY(51, 15 + 2 * i++); cout << player.value()["all_loses"];
 		}
