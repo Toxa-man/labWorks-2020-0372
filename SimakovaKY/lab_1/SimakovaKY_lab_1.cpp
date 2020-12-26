@@ -1,7 +1,7 @@
 #include <iostream> 
 #include <conio.h>
 using namespace std;
-char ch = _getch();
+
 int main() {
 	cout << "Enter expression: first number +,-,*,/ second number  " << endl;
 	do {
@@ -31,7 +31,9 @@ int main() {
 		default:
 			cout << " Sign unrecognised " << endl;
 		} 
-		cout << "Result= " << result;
-	} while (ch != 32);
+		cout << "Result= " << result<<endl;
+		cout<<"To exit the program press Esc. To continue - space."<<;
+		char ch = _getch();
+	} while (ch != 27);
 		return 0; 
 	} 
