@@ -19,7 +19,6 @@
 using std::cout;
 using std::cin;
 using std::string;
-using std::vector;
 using json = nlohmann::json;
 
 //Starting board
@@ -112,8 +111,8 @@ void printGameElements() {
 	gotoXY(27, 32); cout << "*****************";
 }
 
-void updateMovesField(vector<string> moves) {
-	if ((moves.size() - 1) % 24 == 0) {
+void updateMovesField(string moves[100], int size) {
+	if ((size - 1) % 24 == 0) {
 		gotoXY(46, 7); cout << "****** Moves ******";
 		for (int i = 8; i < 32; i++) {
 			gotoXY(46, i); cout << "*                 *";
@@ -121,7 +120,7 @@ void updateMovesField(vector<string> moves) {
 		gotoXY(46, 32); cout << "*******************";
 	}
 
-	for (int i = 24*((int)moves.size()/24); i < (int)moves.size() % 24 + 24*(moves.size() / 24); i++) {
+	for (int i = 24*(size/24); i < size % 24 + 24*(size / 24); i++) {
 		gotoXY(47, 8 + i%24); cout << i + 1 << ". " << moves[i];
 	}
 }
@@ -133,10 +132,10 @@ void updateScoreField(float score[2]) {
 	gotoXY(59, 4); cout << score[0];
 }
 
-bool checkMove(vector<int> move, string board[8][8], bool side, int checkers[2], bool &beated) {
+bool checkMove(int move[4], string board[8][8], bool side, int checkers[2], bool &beated) {
 	//Verify format and limits
-	for (int element: move) {
-		if (element > 7 || element < 0)
+	for (int i = 0; i < 4; i++) {
+		if (move[i] > 7 || move[i] < 0)
 			return false;
 	}
 
@@ -154,7 +153,7 @@ bool checkMove(vector<int> move, string board[8][8], bool side, int checkers[2],
 	//Make move
 	if (board[ move[0] ][ move[1] ][1] == 'D') {
 		//King moves
-		vector<vector<int>> cells;
+		int cells[13][2], cellsSize = 0;
 		int rivalCounter = 0;
 		int colChange = (move[1] < move[3]) - (move[1] > move[3]),
 			rowChange = -(move[0] < move[2]) + (move[0] > move[2]);
@@ -171,12 +170,13 @@ bool checkMove(vector<int> move, string board[8][8], bool side, int checkers[2],
 			if (board[i][j][0] == (side * 45 + not side * 43) && ++rivalCounter > 1 )
 				return false; //If found more than 1 rival checker, stop
 
-			cells.push_back({ i, j });
+			cells[cellsSize][0] = i;
+			cells[cellsSize++][1] = j;
 		}
 
-		for (auto element: cells) {
-			if (board[element[0]][element[1]][0] == (side * 45 + not side * 43)) {
-				board[element[0]][element[1]] = "  "; //Remove rival checker
+		for (int i = 0; i < cellsSize; i++) {
+			if (board[ cells[i][0] ][ cells[i][1] ][0] == (side * 45 + not side * 43)) {
+				board[ cells[i][0] ][ cells[i][1] ] = "  "; //Remove rival checker
 				checkers[not side]--; //Decrease rival checkers count
 				beated = true; //For multiple beats
 			}
@@ -203,14 +203,15 @@ bool checkMove(vector<int> move, string board[8][8], bool side, int checkers[2],
 	return true;
 }
 
-void findNextBeat(string move, vector<string>& moves, string board[8][8], bool side, int checkers[2]) {
-	vector<int> prevPos = { move[0] - 97, 56 - move[1] }; //For multiple king beats
-	vector<int> currPos = { move[2] - 97, 56 - move[3] };
+void findNextBeat(int move[4], string *moves, int movesSize, string board[8][8], bool side, int checkers[2]) {
+	int prevPos[2] = { move[1], move[0] }; //For multiple king beats
+	int currPos[2] = { move[3], move[2] };
 
-	if (board[56 - move[3]][move[2] - 97][1] == 'P') {
+	if (board[move[2]][move[3]][1] == 'P') {
 		//Multiple beats for standard checkers
 		while (true) {
-			vector<vector<int>> availMoves;
+			int availMoves[3][4];
+			int availMovesSize = 0;
 
 			for (int i = -1; i <= 1; i += 2) {
 				for (int j = -1; j <= 1; j += 2) {
@@ -218,14 +219,17 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 						if (board[currPos[1] + i][currPos[0] + j][0] == (side * 45 + not side * 43) && \
 							board[currPos[1] + 2 * i][currPos[0] + 2 * j] == "  ") {
 							//Next checker coords + rival checker coords to empty its cell
-							availMoves.push_back({ currPos[1] + 2 * i, currPos[0] + 2 * j, currPos[1] + i, currPos[0] + j });
+							availMoves[availMovesSize][0] = currPos[1] + 2 * i;
+							availMoves[availMovesSize][1] = currPos[0] + 2 * j;
+							availMoves[availMovesSize][2] = currPos[1] + i;
+							availMoves[availMovesSize++][3] = currPos[0] + j;
 						}
 					}
 				}
 			}
 
 			//Print interactive menu if found available moves
-			if (availMoves.size() > 0) {
+			if (availMovesSize > 0) {
 				bool running = true;
 				int menuItem = 0, bias = 0;
 
@@ -236,7 +240,7 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 				cout << "->";
 
 				while (running) {
-					for (int i = 0; i < (int)availMoves.size(); i++) {
+					for (int i = 0; i < availMovesSize; i++) {
 						gotoXY(35, 29 + i); cout << char(availMoves[i][1] + 97) << 8 - availMoves[i][0];
 					}
 
@@ -249,7 +253,7 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 						continue;
 
 					case 80: //Down key
-						if (menuItem == availMoves.size() - 1) continue;
+						if (menuItem == availMovesSize - 1) continue;
 						gotoXY(33, 29 + bias++); cout << "  ";
 						gotoXY(33, 29 + bias); cout << "->";
 						menuItem++;
@@ -260,10 +264,12 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					}
 				}
 
-				swap(board[ currPos[1] ][ currPos[0] ], board[ availMoves[menuItem][0] ][ availMoves[menuItem][1] ]);
-				currPos = { availMoves[menuItem][1], availMoves[menuItem][0] }; //Reset current position
+				swap(board[currPos[1]][currPos[0]], board[availMoves[menuItem][0]][availMoves[menuItem][1]]);
+				currPos[0] = availMoves[menuItem][1]; //Reset current position
+				currPos[1] = availMoves[menuItem][0];
+
 				board[ availMoves[menuItem][2] ][ availMoves[menuItem][3] ] = "  "; //Remove rival checker
-				moves.back() = moves.back() + ':' + char(currPos[0] + 97) + char(56 - currPos[1]);
+				moves[movesSize - 1] = moves[movesSize - 1] + ':' + char(currPos[0] + 97) + char(56 - currPos[1]);
 
 				if (((currPos[1] == 0 && side) || (currPos[1] == 7 && not side)) && \
 					board[currPos[1]][currPos[0]][1] != 'D')
@@ -282,8 +288,10 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 	} else {
 		//Multiple beats for king checkers
 		while (true) {
-			vector<vector<int>> availMoves;
-			vector<int> rival;
+			int availMoves[13][4];
+			int availMovesSize = 0;
+			int counter = 0;
+			int rival[2];
 			string nextMove;
 
 			//Up-Right
@@ -292,10 +300,14 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					if (board[j][i][0] == (not side * 45 + side * 43)) break; //If find own checker, stop
 					if (board[j][i][0] == (side * 45 + not side * 43)) { //Find the closest rival checker
 						if (board[j - 1][i + 1] == "  ") { //Check next cell after the cell with rival checker to move to
-							rival = { j, i };
+							rival[0] = j; rival[1] = i;
 							for (++i, --j; i < 8 && j > -1; i++, j--) { //Go further and gather available cells to move (beat)
 								if (board[j][i] == "  ") {
-									availMoves.push_back({ j, i, rival[0], rival[1] });
+									for (int el : { j, i, rival[0], rival[1] }) {
+										availMoves[availMovesSize][counter++] = el;
+									}
+									counter = 0;
+									availMovesSize++;
 								}
 								else {
 									break; //If found not empty cell then stop
@@ -313,10 +325,14 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					if (board[j][i][0] == (not side * 45 + side * 43)) break;
 					if (board[j][i][0] == (side * 45 + not side * 43)) {
 						if (board[j + 1][i + 1] == "  ") {
-							rival = { j, i };
+							rival[0] = j; rival[1] = i;
 							for (++i, ++j; i < 8 && j < 8; i++, j++) {
 								if (board[j][i] == "  ") {
-									availMoves.push_back({ j, i, rival[0], rival[1] });
+									for (int el : { j, i, rival[0], rival[1] }) {
+										availMoves[availMovesSize][counter++] = el;
+									}
+									counter = 0;
+									availMovesSize++;
 								}
 								else {
 									break;
@@ -334,10 +350,14 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					if (board[j][i][0] == (not side * 45 + side * 43)) break;
 					if (board[j][i][0] == (side * 45 + not side * 43)) {
 						if (board[j + 1][i - 1] == "  ") {
-							rival = { j, i };
+							rival[0] = j; rival[1] = i;
 							for (--i, ++j; i > -1 && j < 8; i--, j++) {
 								if (board[j][i] == "  ") {
-									availMoves.push_back({ j, i, rival[0], rival[1] });
+									for (int el : { j, i, rival[0], rival[1] }) {
+										availMoves[availMovesSize][counter++] = el;
+									}
+									counter = 0;
+									availMovesSize++;
 								}
 								else {
 									break;
@@ -355,10 +375,14 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					if (board[j][i][0] == (not side * 45 + side * 43)) break;
 					if (board[j][i][0] == (side * 45 + not side * 43)) {
 						if (board[j - 1][i - 1] == "  ") {
-							rival = { j, i };
+							rival[0] = j; rival[1] = i;
 							for (--i, --j; i > -1 && j > -1; i--, j--) {
 								if (board[j][i] == "  ") {
-									availMoves.push_back({ j, i, rival[0], rival[1] });
+									for (int el : { j, i, rival[0], rival[1] }) {
+										availMoves[availMovesSize][counter++] = el;
+									}
+									counter = 0;
+									availMovesSize++;
 								}
 								else {
 									break;
@@ -370,7 +394,7 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 				}
 			}
 			
-			if (availMoves.size() > 0) {
+			if (availMovesSize > 0) {
 				printBoard(board);
 				gotoXY(33, 30);
 				cout << "    ";
@@ -381,9 +405,11 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 					if (nextMove[0] - 97 == element[1] && 56 - nextMove[1] == element[0]) {
 						swap(board[ currPos[1] ][ currPos[0] ], board[ element[0] ][ element[1] ]);
 						board[ element[2] ][ element[3] ] = "  "; //Remove rival checker
-						prevPos = { currPos[0], currPos[1] }; //Reset previous position
-						currPos = { element[1], element[0] }; //Reset current position
-						moves.back() = moves.back() + ':' + char(element[1] + 97) + char(56 - element[0]);
+						prevPos[0] = currPos[0]; //Reset previous position
+						prevPos[1] = currPos[1];
+						currPos[0] = element[1]; //Reset current position
+						currPos[1] = element[0];
+						moves[movesSize - 1] = moves[movesSize - 1] + ':' + char(element[1] + 97) + char(56 - element[0]);
 						checkers[not side]--; //Decrease rival checkers count
 					}
 				}
@@ -395,8 +421,8 @@ void findNextBeat(string move, vector<string>& moves, string board[8][8], bool s
 }
 
 bool gameProcess(string players[2], float score[2], int &draws) {
-	vector<string> moves;
-	vector<int> move;
+	string moves[100];
+	int move[4], movesSize = 0;
 	int checkers[2] = { 12, 12 }; //Black, White
 	bool side = 1, //0 - black, 1 - white
 		 draw = false,
@@ -442,24 +468,27 @@ bool gameProcess(string players[2], float score[2], int &draws) {
 		else if (action == "rsgn") {
 			checkers[side] = 0;
 		} else {
-			move = { 56 - action[1], action[0] - 97, 56 - action[3], action[2] - 97};
+			move[0] = 56 - action[1];
+			move[1] = action[0] - 97;
+			move[2] = 56 - action[3];
+			move[3] = action[2] - 97;
 			//Check move availability and correctness
 			if (not checkMove(move, board, side, checkers, beated)) {
 				continue;
 			}
 
 			swap(board[ move[0] ][ move[1] ], board[ move[2] ][ move[3] ]);
-			moves.push_back(action.substr(0, 2) + ':' + action.substr(2, 2));
+			moves[movesSize++] = (action.substr(0, 2) + ':' + action.substr(2, 2));
 
 			//Multiple beats
 			if (beated) {
-				findNextBeat(action, moves, board, side, checkers);
+				findNextBeat(move, moves, movesSize, board, side, checkers);
 				beated = false;
 			}
 			side = not side; //Change the side
 
 			printBoard(board);
-			updateMovesField(moves);
+			updateMovesField(moves, movesSize);
 		}
 
 		//If one of the side have zero checker, change score and print the winner
